@@ -85,9 +85,6 @@ static char launchNotificationKey;
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     
     NSLog(@"active");
-    
-    //zero badge
-    application.applicationIconBadgeNumber = 0;
 
     if (self.launchNotification) {
         PushPlugin *pushHandler = [self getCommandInstance:@"PushPlugin"];
