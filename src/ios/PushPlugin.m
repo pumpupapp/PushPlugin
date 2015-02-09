@@ -34,6 +34,12 @@
 @synthesize notificationCallbackId;
 @synthesize callback;
 
+- (void)didRegister:(CDVInvokedUrlCommand*)command
+{
+    UIRemoteNotificationType registered = [[UIApplication sharedApplication] isRegisteredForRemoteNotifications];
+    CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsBool:registered];
+    [self.commandDelegate sendPluginResult:result callbackId:command.callbackId];
+}
 
 - (void)unregister:(CDVInvokedUrlCommand*)command;
 {
