@@ -19,6 +19,23 @@ PushNotification.prototype.register = function(successCallback, errorCallback, o
     cordova.exec(successCallback, errorCallback, "PushPlugin", "register", [options]);
 };
 
+// Call this to check if the user has registered for push notifications.
+PushNotification.prototype.didRegister = function(successCallback, errorCallback) {
+   if (errorCallback == null) { errorCallback = function() {}}
+
+   if (typeof errorCallback != "function")  {
+       console.log("PushNotification.didRegister failure: failure parameter not a function");
+       return
+   }
+
+   if (typeof successCallback != "function") {
+       console.log("PushNotification.didRegister failure: success callback parameter must be a function");
+       return
+   }
+
+   cordova.exec(successCallback, errorCallback, "PushPlugin", "didRegister", [options]);
+};
+
 // Call this to unregister for push notifications
 PushNotification.prototype.unregister = function(successCallback, errorCallback, options) {
     if (errorCallback == null) { errorCallback = function() {}}
@@ -36,17 +53,18 @@ PushNotification.prototype.unregister = function(successCallback, errorCallback,
      cordova.exec(successCallback, errorCallback, "PushPlugin", "unregister", [options]);
 };
 
-    // Call this if you want to show toast notification on WP8
-    PushNotification.prototype.showToastNotification = function (successCallback, errorCallback, options) {
-        if (errorCallback == null) { errorCallback = function () { } }
+// Call this if you want to show toast notification on WP8
+PushNotification.prototype.showToastNotification = function (successCallback, errorCallback, options) {
+    if (errorCallback == null) { errorCallback = function () { } }
 
-        if (typeof errorCallback != "function") {
-            console.log("PushNotification.register failure: failure parameter not a function");
-            return
-        }
-
-        cordova.exec(successCallback, errorCallback, "PushPlugin", "showToastNotification", [options]);
+    if (typeof errorCallback != "function") {
+        console.log("PushNotification.register failure: failure parameter not a function");
+        return
     }
+
+    cordova.exec(successCallback, errorCallback, "PushPlugin", "showToastNotification", [options]);
+};
+
 // Call this to set the application icon badge
 PushNotification.prototype.setApplicationIconBadgeNumber = function(successCallback, errorCallback, badge) {
     if (errorCallback == null) { errorCallback = function() {}}
