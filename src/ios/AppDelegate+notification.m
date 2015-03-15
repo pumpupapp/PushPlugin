@@ -63,15 +63,19 @@ static char launchNotificationKey;
 }
 
 - (void)application:(UIApplication *)application didReceiveRemoteNotification:(NSDictionary *)userInfo {
-    NSLog(@"didReceiveNotification");
-    
+    NSLog(@"Recieved Push Notification");
     // Get application state for iOS4.x+ devices, otherwise assume active
     UIApplicationState appState = UIApplicationStateActive;
     if ([application respondsToSelector:@selector(applicationState)]) {
         appState = application.applicationState;
     }
     
-    if (appState == UIApplicationStateActive) {
+    PushPlugin *pushHandler = [self getCommandInstance:@"PushPlugin"];
+    pushHandler.notificationMessage = userInfo;
+    pushHandler.isInline = YES;
+    [pushHandler notificationReceived];
+    
+    /*if (appState == UIApplicationStateActive) {
         PushPlugin *pushHandler = [self getCommandInstance:@"PushPlugin"];
         pushHandler.notificationMessage = userInfo;
         pushHandler.isInline = YES;
@@ -79,13 +83,30 @@ static char launchNotificationKey;
     } else {
         //save it for later
         self.launchNotification = userInfo;
+    }*/
+}
+
+//NOT NECESSARY
+-(void)application:(UIApplication *)application didReceiveLocalNotification:(UILocalNotification *)notification
+{
+    NSLog(@"Recieved Local Notification");
+    
+    UIApplicationState appState = application.applicationState;
+    if(appState != UIApplicationStateActive)
+    {
+       //UIAlertView* alert = [[UduIAlertView alloc] initWithTitle:@"PumpUp" message:notification.alertBody delegate:self cancelButtonTitle:@"SEE NOW" otherButtonTitles:nil];
+        //[alert show];
     }
+}
+
+- (void)application:(UIApplication *)application handleActionWithIdentifier:(NSString *)identifier forLocalNotification:(UILocalNotification *)notification completionHandler:(void(^)())completionHandler
+{
+     NSLog(@"Actually Recieved Local Notification");
 }
 
 - (void)applicationDidBecomeActive:(UIApplication *)application {
     
     NSLog(@"active");
-
     if (self.launchNotification) {
         PushPlugin *pushHandler = [self getCommandInstance:@"PushPlugin"];
 		
@@ -93,6 +114,13 @@ static char launchNotificationKey;
         self.launchNotification = nil;
         [pushHandler performSelectorOnMainThread:@selector(notificationReceived) withObject:pushHandler waitUntilDone:NO];
     }
+}
+
+-(void)applicationDidEnterBackground:(UIApplication *)application
+{
+    NSLog(@"Background");
+
+
 }
 
 // The accessors use an Associative Reference since you can't define a iVar in a category
