@@ -221,7 +221,7 @@
 
         [jsonStr appendString:@"}"];
 
-        NSLog(@"Msg: %@", jsonStr);
+        NSLog(@"Notification Message: %@", jsonStr);
 
         NSString * jsCallBack = [NSString stringWithFormat:@"%@(%@);", self.callback, jsonStr];
         [self.webView stringByEvaluatingJavaScriptFromString:jsCallBack];
@@ -231,6 +231,7 @@
 }
 
 // reentrant method to drill down and surface all sub-dictionaries' key/value pairs into the top level json
+// This is our custom override for sending local notifications
 -(void)parseDictionary:(NSDictionary *)inDictionary intoJSON:(NSMutableString *)jsonString
 {
     NSArray         *keys = [inDictionary allKeys];
@@ -239,7 +240,7 @@
     for (key in keys)
     {
         id thisObject = [inDictionary objectForKey:key];
-
+        
         if ([thisObject isKindOfClass:[NSDictionary class]])
             [self parseDictionary:thisObject intoJSON:jsonString];
         else if ([thisObject isKindOfClass:[NSString class]])
@@ -251,6 +252,22 @@
                  stringByReplacingOccurrencesOfString:@"\n" withString:@"\\n"]];
         else {
             [jsonString appendFormat:@"\"%@\":\"%@\",", key, [inDictionary objectForKey:key]];
+        }
+        
+        //THIS IS NOT NEEDED with the content-avialable flag in the payload
+        //Doing custom alert here here, ONLY SENDS MESSAGE IF APP IS IN BACKGROUND
+        if([key  isEqual: @"message"])
+        {
+            [[UIApplication sharedApplication]cancelAllLocalNotifications];
+            UILocalNotification *localNotification = [[UILocalNotification alloc] init];
+            localNotification.fireDate = [NSDate dateWithTimeIntervalSinceNow:0];
+            localNotification.soundName = UILocalNotificationDefaultSoundName;
+            localNotification.alertBody = inDictionary[@"message"];
+            //localNotification.alertTitle = @"Update"; CANT SEEM TO SET THIS OR CRASH
+           // localNotification.alertAction = NSLocalizedString(@"Read Msg", nil);
+           // localNotification.repeatInterval=0;
+            [[UIApplication sharedApplication] scheduleLocalNotification:localNotification];
+            NSLog(@"Sending local notification");
         }
     }
 }
